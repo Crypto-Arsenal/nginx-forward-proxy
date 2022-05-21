@@ -36,9 +36,6 @@ RUN curl -LSs http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz -O        
 
 WORKDIR /
 
-RUN ls
-RUN pwd
-
 COPY ./load_balancer/nginx.conf /usr/local/nginx/conf/nginx.conf
 
 EXPOSE 80
