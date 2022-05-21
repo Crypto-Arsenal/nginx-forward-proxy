@@ -10,7 +10,7 @@ orbs:
 jobs:
   build_and_push_2_gcr:
     docker:
-      - image: circleci/node:lts
+      - image: cimg/node
 
     steps:
       - checkout
