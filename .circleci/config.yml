@@ -1,0 +1,48 @@
+# Javascript Node CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-javascript/ for more details
+#
+version: 2.1
+
+orbs:
+  mattermost-plugin-notify: nathanaelhoun/mattermost-plugin-notify@1.2.0
+
+jobs:
+  build_and_push_2_gcr:
+    docker:
+      - image: circleci/node:lts
+
+    steps:
+      - checkout
+
+      - setup_remote_docker:
+          version: 19.03.13
+
+      - add_ssh_keys:
+          fingerprints:
+            - '66:51:a4:86:75:e9:31:17:a4:c9:49:a0:22:84:56:f7'
+
+      - run: |
+          docker build . --build-arg GIT_HASH=$(git rev-parse --short HEAD) --build-arg GIT_CT=$(git log -1 --format=%ct | cat) --build-arg CACHEBUST="$(date +%s)" --build-arg GITHUB_KEY="$(cat ~/.ssh/id_rsa_6651a48675e93117a4c949a0228456f7)" -t gcr.io/helical-element-194515/nginx-forward-proxy:latest -t gcr.io/helical-element-194515/nginx-forward-proxy:G_$(git rev-parse --short HEAD)
+
+      - run: |
+          docker login -u _json_key -p "$GCR_PWD" https://gcr.io
+          DIG=$(docker push gcr.io/helical-element-194515/nginx-forward-proxy | tail -n 1)
+          curl  -X POST -H 'Content-type: application/json' --data "{\"text\":\"$DIG)\"}" $SLACK_WEBHOOK
+
+      - mattermost-plugin-notify/status:
+          failure_message: '[$CIRCLE_PROJECT_REPONAME] $CIRCLE_JOB: ⛔ failed! @$CIRCLE_USERNAME'
+          success_message: '[$CIRCLE_PROJECT_REPONAME] $CIRCLE_JOB: ✅ succeeded! @$CIRCLE_USERNAME'
+          webhook: $MM_WEBHOOK
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build_and_push_2_gcr:
+          context: CryptoArsenal
+          filters:
+            branches:
+              only:
+                - main
+                - stage
