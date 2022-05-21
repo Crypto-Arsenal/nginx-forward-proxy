@@ -10,7 +10,7 @@ orbs:
 jobs:
   build_and_push_2_gcr:
     docker:
-      - image: cimg/node
+      - image: cimg/node:14.19
 
     steps:
       - checkout
