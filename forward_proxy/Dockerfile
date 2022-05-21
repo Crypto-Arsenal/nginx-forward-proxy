@@ -36,7 +36,10 @@ RUN curl -LSs http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz -O        
 
 WORKDIR /
 
-COPY .forward_proxy/nginx.conf /usr/local/nginx/conf/nginx.conf
+RUN ls
+RUN pwd
+
+COPY ./forward_proxy/nginx.conf /usr/local/nginx/conf/nginx.conf
 
 EXPOSE 80
 
