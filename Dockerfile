@@ -38,7 +38,7 @@ WORKDIR /
 
 COPY ./nginx.conf /usr/local/nginx/conf/nginx.conf
 
-EXPOSE 3128
+EXPOSE 80
 
 STOPSIGNAL SIGTERM
 
